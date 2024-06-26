@@ -44,42 +44,51 @@ __Reference:__ [yolov8m.yaml](https://github.com/hailo-ai/hailo_model_zoo/blob/m
 
 ### Model Script Commands
 ```
-model_script_commands = [
-    'normalization1 = normalization([0.0, 0.0, 0.0], [255.0, 255.0, 255.0])\n',
-    'model_optimization_config(calibration, batch_size=2)\n',
-    'change_output_activation(conv58, sigmoid)\n',
-    'change_output_activation(conv71, sigmoid)\n',
-    'change_output_activation(conv83, sigmoid)\n',
-    'nms_postprocess("postprocess_config/yolov8m_nms_config.json", meta_arch=yolov8, engine=cpu)\n',
-    'post_quantization_optimization(finetune, policy=enabled, learning_rate=0.000025)\n',
-]
+normalization1 = normalization([0.0, 0.0, 0.0], [255.0, 255.0, 255.0])
+model_optimization_config(calibration, batch_size=2)
+change_output_activation(conv58, sigmoid)
+change_output_activation(conv71, sigmoid)
+change_output_activation(conv83, sigmoid)
+nms_postprocess("../postprocess_config/yolov8m_nms_config.json", meta_arch=yolov8, engine=cpu)
+post_quantization_optimization(finetune, policy=enabled, learning_rate=0.000025)
 ```
 __Reference:__ [yolov8m.alls](https://github.com/hailo-ai/hailo_model_zoo/blob/master/hailo_model_zoo/cfg/alls/generic/yolov8m.alls)
 
 ### Model NMS Configure
 ```
-"classes": 2,
-...
-"bbox_decoders": [
-  {
-    "name": "model/bbox_decoder57",
-    "stride": 8,
-    "reg_layer": "model/conv57",
-    "cls_layer": "model/conv58"
-  },
-  {
-    "name": "model/bbox_decoder70",
-    "stride": 16,
-    "reg_layer": "model/conv70",
-    "cls_layer": "model/conv71"
-  },
-  {
-    "name": "model/bbox_decoder82",
-    "stride": 32,
-    "reg_layer": "model/conv82",
-    "cls_layer": "model/conv83"
-  }
-]
+{
+	"nms_scores_th": 0.2,
+	"nms_iou_th": 0.7,
+	"image_dims": [
+		640,
+		640
+	],
+	"max_proposals_per_class": 100,
+	"classes": 2,
+	"regression_length": 16,
+	"background_removal": false,
+	"background_removal_index": 0,
+	"bbox_decoders": [
+		{
+			"name": "yolov8m/bbox_decoder57",
+			"stride": 8,
+			"reg_layer": "yolov8m/conv57",
+			"cls_layer": "yolov8m/conv58"
+		},
+		{
+			"name": "yolov8m/bbox_decoder70",
+			"stride": 16,
+			"reg_layer": "yolov8m/conv70",
+			"cls_layer": "yolov8m/conv71"
+		},
+		{
+			"name": "yolov8m/bbox_decoder82",
+			"stride": 32,
+			"reg_layer": "yolov8m/conv82",
+			"cls_layer": "yolov8m/conv83"
+		}
+	]
+}
 ```
 __Reference:__ [yolov8m_nms_config.json](https://github.com/hailo-ai/hailo_model_zoo/blob/master/hailo_model_zoo/cfg/postprocess_config/yolov8m_nms_config.json)
 
@@ -97,7 +106,12 @@ yolov8m_hailo_model.har
 
 ### Optimized model
 ```
-best_quantized_model.har
+yolov8m_quantized_model.har
+```
+
+### Compiled model
+```
+yolov8m.hef
 ```
 
 ## Reference
